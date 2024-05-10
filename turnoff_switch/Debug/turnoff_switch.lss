@@ -1,0 +1,224 @@
+
+turnoff_switch.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         00000104  00000000  00000000  00000074  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .data         00000002  00800040  00000104  00000178  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  2 .comment      00000030  00000000  00000000  0000017a  2**0
+                  CONTENTS, READONLY
+  3 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  000001ac  2**2
+                  CONTENTS, READONLY
+  4 .debug_aranges 00000028  00000000  00000000  000001e8  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  5 .debug_info   0000049f  00000000  00000000  00000210  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_abbrev 000003e9  00000000  00000000  000006af  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_line   0000028d  00000000  00000000  00000a98  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_frame  00000048  00000000  00000000  00000d28  2**2
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_str    000002d8  00000000  00000000  00000d70  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 10 .debug_loc    000000d7  00000000  00000000  00001048  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 11 .debug_ranges 00000018  00000000  00000000  0000111f  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	0a c0       	rjmp	.+20     	; 0x16 <__ctors_end>
+   2:	1c c0       	rjmp	.+56     	; 0x3c <__bad_interrupt>
+   4:	1b c0       	rjmp	.+54     	; 0x3c <__bad_interrupt>
+   6:	1a c0       	rjmp	.+52     	; 0x3c <__bad_interrupt>
+   8:	19 c0       	rjmp	.+50     	; 0x3c <__bad_interrupt>
+   a:	18 c0       	rjmp	.+48     	; 0x3c <__bad_interrupt>
+   c:	17 c0       	rjmp	.+46     	; 0x3c <__bad_interrupt>
+   e:	16 c0       	rjmp	.+44     	; 0x3c <__bad_interrupt>
+  10:	4d c0       	rjmp	.+154    	; 0xac <__vector_8>
+  12:	14 c0       	rjmp	.+40     	; 0x3c <__bad_interrupt>
+  14:	13 c0       	rjmp	.+38     	; 0x3c <__bad_interrupt>
+
+00000016 <__ctors_end>:
+  16:	11 27       	eor	r17, r17
+  18:	1f bf       	out	0x3f, r17	; 63
+  1a:	cf e5       	ldi	r28, 0x5F	; 95
+  1c:	d0 e0       	ldi	r29, 0x00	; 0
+  1e:	de bf       	out	0x3e, r29	; 62
+  20:	cd bf       	out	0x3d, r28	; 61
+
+00000022 <__do_copy_data>:
+  22:	20 e0       	ldi	r18, 0x00	; 0
+  24:	a0 e4       	ldi	r26, 0x40	; 64
+  26:	b0 e0       	ldi	r27, 0x00	; 0
+  28:	e4 e0       	ldi	r30, 0x04	; 4
+  2a:	f1 e4       	ldi	r31, 0x41	; 65
+  2c:	02 c0       	rjmp	.+4      	; 0x32 <__do_copy_data+0x10>
+  2e:	31 91       	ld	r19, Z+
+  30:	3d 93       	st	X+, r19
+  32:	a2 34       	cpi	r26, 0x42	; 66
+  34:	b2 07       	cpc	r27, r18
+  36:	d9 f7       	brne	.-10     	; 0x2e <__do_copy_data+0xc>
+  38:	02 d0       	rcall	.+4      	; 0x3e <main>
+  3a:	62 c0       	rjmp	.+196    	; 0x100 <_exit>
+
+0000003c <__bad_interrupt>:
+  3c:	e1 cf       	rjmp	.-62     	; 0x0 <__vectors>
+
+0000003e <main>:
+	#else
+		//round up by default
+		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
+	#endif
+
+	__builtin_avr_delay_cycles(__ticks_dc);
+  3e:	47 e8       	ldi	r20, 0x87	; 135
+  40:	53 e1       	ldi	r21, 0x13	; 19
+  42:	41 50       	subi	r20, 0x01	; 1
+  44:	50 40       	sbci	r21, 0x00	; 0
+  46:	e9 f7       	brne	.-6      	; 0x42 <__SREG__+0x3>
+  48:	00 c0       	rjmp	.+0      	; 0x4a <__SREG__+0xb>
+  4a:	00 00       	nop
+volatile uint16_t timeout = 0xFFFF;
+
+int main(void)
+{
+	_delay_ms(20);
+	DDRB = _BV(KICK_PIN);
+  4c:	41 e0       	ldi	r20, 0x01	; 1
+  4e:	41 b9       	out	0x01, r20	; 1
+	DIDR0 = _BV(ADC1D);
+  50:	52 e0       	ldi	r21, 0x02	; 2
+  52:	57 bb       	out	0x17, r21	; 23
+	PORTB = _BV(KICK_PIN)|_BV(SW_PIN);
+  54:	55 e0       	ldi	r21, 0x05	; 5
+  56:	52 b9       	out	0x02, r21	; 2
+  58:	67 ea       	ldi	r22, 0xA7	; 167
+  5a:	71 e6       	ldi	r23, 0x61	; 97
+  5c:	61 50       	subi	r22, 0x01	; 1
+  5e:	70 40       	sbci	r23, 0x00	; 0
+  60:	e9 f7       	brne	.-6      	; 0x5c <__SREG__+0x1d>
+  62:	00 c0       	rjmp	.+0      	; 0x64 <__stack+0x5>
+  64:	00 00       	nop
+	_delay_ms(100);
+	ADMUX = ADC1;
+  66:	4b bb       	out	0x1b, r20	; 27
+	ADCSRA = _BV(ADEN)|_BV(ADSC)|_BV(ADPS2)|_BV(ADPS1)|_BV(ADPS0);
+  68:	47 ec       	ldi	r20, 0xC7	; 199
+  6a:	4d bb       	out	0x1d, r20	; 29
+    while(ADCSRA & _BV(ADSC));
+  6c:	ee 99       	sbic	0x1d, 6	; 29
+  6e:	fe cf       	rjmp	.-4      	; 0x6c <__stack+0xd>
+	ADCSRA |= _BV(ADEN);
+  70:	4d b3       	in	r20, 0x1d	; 29
+  72:	40 68       	ori	r20, 0x80	; 128
+  74:	4d bb       	out	0x1d, r20	; 29
+	//one more conversion - 1st conversion may have problems
+	while(ADCSRA & _BV(ADSC));
+  76:	ee 99       	sbic	0x1d, 6	; 29
+  78:	fe cf       	rjmp	.-4      	; 0x76 <__stack+0x17>
+	timeout = ADCL+1; 
+  7a:	49 b3       	in	r20, 0x19	; 25
+  7c:	50 e0       	ldi	r21, 0x00	; 0
+  7e:	4f 5f       	subi	r20, 0xFF	; 255
+  80:	5f 4f       	sbci	r21, 0xFF	; 255
+  82:	51 a9       	sts	0x41, r21	; 0x800041 <__DATA_REGION_ORIGIN__+0x1>
+  84:	40 a9       	sts	0x40, r20	; 0x800040 <__DATA_REGION_ORIGIN__>
+	//timeout = 4;
+	//watchdog configure
+	wdt_enable(WDTO_1S);
+  86:	5e e0       	ldi	r21, 0x0E	; 14
+  88:	48 ed       	ldi	r20, 0xD8	; 216
+  8a:	0f b7       	in	r16, 0x3f	; 63
+  8c:	f8 94       	cli
+  8e:	a8 95       	wdr
+  90:	4c bf       	out	0x3c, r20	; 60
+  92:	51 bf       	out	0x31, r21	; 49
+  94:	0f bf       	out	0x3f, r16	; 63
+	wdt_reset();
+  96:	a8 95       	wdr
+	sei();
+  98:	78 94       	sei
+	set_sleep_mode(SLEEP_MODE_PWR_DOWN);
+  9a:	4a b7       	in	r20, 0x3a	; 58
+  9c:	41 7f       	andi	r20, 0xF1	; 241
+  9e:	44 60       	ori	r20, 0x04	; 4
+  a0:	4a bf       	out	0x3a, r20	; 58
+	sleep_enable();
+  a2:	4a b7       	in	r20, 0x3a	; 58
+  a4:	41 60       	ori	r20, 0x01	; 1
+  a6:	4a bf       	out	0x3a, r20	; 58
+    while (1) 
+    {
+		sleep_cpu();
+  a8:	88 95       	sleep
+  aa:	fe cf       	rjmp	.-4      	; 0xa8 <__stack+0x49>
+
+000000ac <__vector_8>:
+    }
+}
+
+
+ISR(WDT_vect)
+{
+  ac:	1f 93       	push	r17
+  ae:	0f 93       	push	r16
+  b0:	0f b7       	in	r16, 0x3f	; 63
+  b2:	0f 93       	push	r16
+  b4:	10 e0       	ldi	r17, 0x00	; 0
+  b6:	4f 93       	push	r20
+  b8:	5f 93       	push	r21
+	if(--timeout)
+  ba:	40 a1       	lds	r20, 0x40	; 0x800040 <__DATA_REGION_ORIGIN__>
+  bc:	51 a1       	lds	r21, 0x41	; 0x800041 <__DATA_REGION_ORIGIN__+0x1>
+  be:	41 50       	subi	r20, 0x01	; 1
+  c0:	51 0b       	sbc	r21, r17
+  c2:	51 a9       	sts	0x41, r21	; 0x800041 <__DATA_REGION_ORIGIN__+0x1>
+  c4:	40 a9       	sts	0x40, r20	; 0x800040 <__DATA_REGION_ORIGIN__>
+  c6:	45 2b       	or	r20, r21
+  c8:	a1 f0       	breq	.+40     	; 0xf2 <__vector_8+0x46>
+	{
+		wdt_disable();
+  ca:	48 ed       	ldi	r20, 0xD8	; 216
+  cc:	50 e0       	ldi	r21, 0x00	; 0
+  ce:	0f b7       	in	r16, 0x3f	; 63
+  d0:	f8 94       	cli
+  d2:	a8 95       	wdr
+  d4:	4c bf       	out	0x3c, r20	; 60
+  d6:	51 b7       	in	r21, 0x31	; 49
+  d8:	57 7f       	andi	r21, 0xF7	; 247
+  da:	51 bf       	out	0x31, r21	; 49
+  dc:	0f bf       	out	0x3f, r16	; 63
+		ADCSRA &= ~_BV(ADEN);
+  de:	4d b3       	in	r20, 0x1d	; 29
+  e0:	4f 77       	andi	r20, 0x7F	; 127
+  e2:	4d bb       	out	0x1d, r20	; 29
+		PORTB &= ~_BV(KICK_PIN);
+  e4:	42 b1       	in	r20, 0x02	; 2
+  e6:	4e 7f       	andi	r20, 0xFE	; 254
+  e8:	42 b9       	out	0x02, r20	; 2
+		//DDRB &= ~_BV(KICK_PIN);
+		timeout = 1;
+  ea:	41 e0       	ldi	r20, 0x01	; 1
+  ec:	50 e0       	ldi	r21, 0x00	; 0
+  ee:	51 a9       	sts	0x41, r21	; 0x800041 <__DATA_REGION_ORIGIN__+0x1>
+  f0:	40 a9       	sts	0x40, r20	; 0x800040 <__DATA_REGION_ORIGIN__>
+	}
+}
+  f2:	5f 91       	pop	r21
+  f4:	4f 91       	pop	r20
+  f6:	0f 91       	pop	r16
+  f8:	0f bf       	out	0x3f, r16	; 63
+  fa:	0f 91       	pop	r16
+  fc:	1f 91       	pop	r17
+  fe:	18 95       	reti
+
+00000100 <_exit>:
+ 100:	f8 94       	cli
+
+00000102 <__stop_program>:
+ 102:	ff cf       	rjmp	.-2      	; 0x102 <__stop_program>
